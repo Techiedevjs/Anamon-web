@@ -124,7 +124,7 @@ export default function LoginModal() {
   const handleSmsSend = async () => {
     if (!phone.trim()) return;
     try {
-      await sendSmsCode({ phone: phone.trim() });
+      await sendSmsCode({ phoneNumber: phone.trim() });
     } catch (err) {
       console.error("SMS send code error:", err);
     }
