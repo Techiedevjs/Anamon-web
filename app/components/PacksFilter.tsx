@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { usePrivy } from "@privy-io/react-auth";
+import { useAuthModal } from "@/contexts/AuthModalContext";
 
 // Filter options for packs
 const filterOptions = [
@@ -12,6 +14,16 @@ const filterOptions = [
 
 export default function PacksFilter() {
   const [activeFilter, setActiveFilter] = useState("all");
+  const { authenticated } = usePrivy();
+  const { openAuthModal } = useAuthModal();
+
+  const handleFilterClick = (filterId: string) => {
+    if (!authenticated) {
+      openAuthModal();
+      return;
+    }
+    setActiveFilter(filterId);
+  };
 
   return (
     <div className="-mx-3 sm:mx-0 px-3 sm:px-0">
@@ -20,7 +32,7 @@ export default function PacksFilter() {
         {filterOptions.map((option) => (
           <button
             key={option.id}
-            onClick={() => setActiveFilter(option.id)}
+            onClick={() => handleFilterClick(option.id)}
             className={`
               shrink-0 sm:shrink flex items-center justify-center gap-1.5 sm:gap-2 
               px-3 sm:px-4 py-2.5 sm:py-2.5 rounded-xl sm:rounded-[14px] 

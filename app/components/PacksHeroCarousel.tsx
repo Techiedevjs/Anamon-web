@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { usePrivy } from "@privy-io/react-auth";
+import { useAuthModal } from "@/contexts/AuthModalContext";
 
 // Mock data for carousel slides
 const packsData = [
@@ -30,6 +32,16 @@ const packsData = [
 
 export default function PacksHeroCarousel() {
   const [activeSlide, setActiveSlide] = useState(0);
+  const { authenticated } = usePrivy();
+  const { openAuthModal } = useAuthModal();
+
+  const handleRipPack = () => {
+    if (!authenticated) {
+      openAuthModal();
+      return;
+    }
+    // TODO: Handle rip pack action for authenticated users
+  };
 
   return (
     <div className="w-full">
@@ -69,6 +81,7 @@ export default function PacksHeroCarousel() {
               
               {/* RIP PACK Button */}
               <button 
+                onClick={handleRipPack}
                 className="flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-4 md:px-5 lg:px-6 py-1.5 sm:py-2 md:py-2.5 lg:py-3 rounded-lg sm:rounded-xl md:rounded-[14px] text-white font-semibold text-xs sm:text-sm md:text-base transition-opacity hover:opacity-90 touch-manipulation"
                 style={{ background: "linear-gradient(90deg, #B71959 0%, #E04548 100%)" }}
               >

@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { useCallback, useState } from "react";
 import { Minus, Plus } from "lucide-react";
+import { usePrivy } from "@privy-io/react-auth";
+import { useAuthModal } from "@/contexts/AuthModalContext";
 import PurchaseModal from "./PurchaseModal";
 
 interface PackCardProps {
@@ -17,18 +19,32 @@ const MAX_QUANTITY = 99;
 export default function PackCard({ name, price, image }: PackCardProps) {
   const [quantity, setQuantity] = useState(MIN_QUANTITY);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { authenticated } = usePrivy();
+  const { openAuthModal } = useAuthModal();
 
   const increment = useCallback(() => {
+    if (!authenticated) {
+      openAuthModal();
+      return;
+    }
     setQuantity((prev) => Math.min(prev + 1, MAX_QUANTITY));
-  }, []);
+  }, [authenticated, openAuthModal]);
 
   const decrement = useCallback(() => {
+    if (!authenticated) {
+      openAuthModal();
+      return;
+    }
     setQuantity((prev) => Math.max(prev - 1, MIN_QUANTITY));
-  }, []);
+  }, [authenticated, openAuthModal]);
 
   const openModal = useCallback(() => {
+    if (!authenticated) {
+      openAuthModal();
+      return;
+    }
     setIsModalOpen(true);
-  }, []);
+  }, [authenticated, openAuthModal]);
 
   const closeModal = useCallback(() => {
     setIsModalOpen(false);
