@@ -18,19 +18,18 @@ interface PurchaseModalProps {
   pack: PackData;
 }
 
-type Currency = "USDC" | "USDT";
+type Currency = "USDC";
 
 interface WalletBalance {
   USDC: number;
-  USDT: number;
 }
 
 const POINTS_PER_PURCHASE = 2500;
 
 export default function PurchaseModal({ isOpen, onClose, pack }: PurchaseModalProps) {
-  const [selectedCurrency, setSelectedCurrency] = useState<Currency>("USDC");
+  const [selectedCurrency] = useState<Currency>("USDC");
   // TODO: Replace with actual wallet balance from Solana wallet integration
-  const [walletBalance] = useState<WalletBalance>({ USDC: 100, USDT: 50 });
+  const [walletBalance] = useState<WalletBalance>({ USDC: 100 });
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [promoCode, setPromoCode] = useState("");
 
@@ -118,80 +117,37 @@ export default function PurchaseModal({ isOpen, onClose, pack }: PurchaseModalPr
               <span className="text-white text-lg font-medium">Pay with Solana Wallet</span>
             </div>
 
-            {/* Select Currency */}
+            {/* Payment Currency */}
             <div className="flex flex-col gap-3 sm:gap-4">
               <label className="text-white text-sm sm:text-base font-medium">
-                Select Currency
+                Payment Currency
               </label>
-              <div className="flex gap-2 sm:gap-3">
-                {/* USDC Option */}
-                <button
-                  type="button"
-                  onClick={() => setSelectedCurrency("USDC")}
-                  className={`flex-1 h-17 sm:h-19 px-3 sm:px-4 flex items-center justify-between rounded-[14px] transition-all touch-manipulation ${
-                    selectedCurrency === "USDC"
-                      ? "bg-[#E04548]/5 border-2 border-[#E04548]"
-                      : "bg-[#1D1D1D] border-2 border-[#2A2A2A]"
-                  }`}
-                >
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    {/* USDC Icon */}
-                    <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center ${
-                      selectedCurrency === "USDC" ? "bg-[#2775CA]" : "bg-[#2A2A2A]"
-                    }`}>
-                      <span className="text-white text-xs font-bold">$</span>
-                    </div>
-                    <div className="flex flex-col items-start">
-                      <span className="text-white text-sm sm:text-base font-medium">USDC</span>
-                      <span className="text-[#939BAA] text-[10px] sm:text-xs font-medium">{formatPrice(walletBalance.USDC)}</span>
-                    </div>
+              {/* USDC Option - Selected */}
+              <div
+                className="h-17 sm:h-19 px-3 sm:px-4 flex items-center justify-between rounded-[14px] bg-[#E04548]/5 border-2 border-[#E04548]"
+              >
+                <div className="flex items-center gap-2 sm:gap-3">
+                  {/* USDC Icon */}
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center bg-[#2775CA]">
+                    <span className="text-white text-xs font-bold">$</span>
                   </div>
-                  {selectedCurrency === "USDC" && (
-                    <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#E04548] flex items-center justify-center">
-                      <svg className="w-2.5 h-2 sm:w-3 sm:h-2.5" viewBox="0 0 12 10" fill="none">
-                        <path d="M1 5L4.5 8.5L11 1.5" stroke="#1D1D1D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                  )}
-                </button>
-
-                {/* USDT Option */}
-                <button
-                  type="button"
-                  onClick={() => setSelectedCurrency("USDT")}
-                  className={`flex-1 h-17 sm:h-19 px-3 sm:px-4 flex items-center justify-between rounded-[14px] transition-all touch-manipulation ${
-                    selectedCurrency === "USDT"
-                      ? "bg-[#E04548]/5 border-2 border-[#E04548]"
-                      : "bg-[#1D1D1D] border-2 border-[#2A2A2A]"
-                  }`}
-                >
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    {/* USDT Icon */}
-                    <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center ${
-                      selectedCurrency === "USDT" ? "bg-[#26A17B]" : "bg-[#2A2A2A]"
-                    }`}>
-                      <span className="text-white text-xs font-bold">₮</span>
-                    </div>
-                    <div className="flex flex-col items-start">
-                      <span className="text-white text-sm sm:text-base font-medium">USDT</span>
-                      <span className="text-[#939BAA] text-[10px] sm:text-xs font-medium">{formatPrice(walletBalance.USDT)}</span>
-                    </div>
+                  <div className="flex flex-col items-start">
+                    <span className="text-white text-sm sm:text-base font-medium">USDC</span>
+                    <span className="text-[#939BAA] text-[10px] sm:text-xs font-medium">on Solana</span>
                   </div>
-                  {selectedCurrency === "USDT" && (
-                    <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#E04548] flex items-center justify-center">
-                      <svg className="w-2.5 h-2 sm:w-3 sm:h-2.5" viewBox="0 0 12 10" fill="none">
-                        <path d="M1 5L4.5 8.5L11 1.5" stroke="#1D1D1D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                  )}
-                </button>
+                </div>
+                <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#E04548] flex items-center justify-center">
+                  <svg className="w-2.5 h-2 sm:w-3 sm:h-2.5" viewBox="0 0 12 10" fill="none">
+                    <path d="M1 5L4.5 8.5L11 1.5" stroke="#1D1D1D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
               </div>
             </div>
 
             {/* Balance Info */}
             <div className="flex flex-col gap-2 p-4 rounded-xl bg-[#252525] border border-[#2A2A2A]">
               <div className="flex justify-between">
-                <span className="text-[#939BAA] text-sm">Your {selectedCurrency} Balance</span>
+                <span className="text-[#939BAA] text-sm">Your USDC Balance</span>
                 <span className="text-white text-sm font-medium">{formatPrice(selectedBalance)}</span>
               </div>
               <div className="flex justify-between">
@@ -230,7 +186,7 @@ export default function PurchaseModal({ isOpen, onClose, pack }: PurchaseModalPr
               )}
               {amountNeeded > 0 && (
                 <p className="text-center text-[#6A7282] text-xs sm:text-sm">
-                  Need {formatPrice(amountNeeded)} more {selectedCurrency} to complete purchase
+                  Need {formatPrice(amountNeeded)} more USDC to complete purchase
                 </p>
               )}
             </div>
