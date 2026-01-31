@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { useLoginWithOAuth, useLoginWithEmail, useLoginWithSms } from "@privy-io/react-auth";
+import { useLoginWithOAuth, useLoginWithEmail, useLoginWithSms, useLoginWithPasskey } from "@privy-io/react-auth";
 import Image from "next/image";
 import { X, Loader2 } from "lucide-react";
 import { useAuthModal } from "@/contexts/AuthModalContext";
@@ -14,7 +14,7 @@ export default function LoginModal() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
-  const [activeOAuthProvider, setActiveOAuthProvider] = useState<"google" | "apple" | null>(null);
+  const [activeOAuthProvider, setActiveOAuthProvider] = useState<"google" | null>(null);
 
   // OAuth hook
   const { initOAuth, state: oauthState } = useLoginWithOAuth({
@@ -46,6 +46,17 @@ export default function LoginModal() {
     },
     onError: (error) => {
       console.error("SMS error:", error);
+    },
+  });
+
+  // Passkey hook
+  const { loginWithPasskey, state: passkeyState } = useLoginWithPasskey({
+    onComplete: () => {
+      closeAuthModal();
+      resetForm();
+    },
+    onError: (error) => {
+      console.error("Passkey error:", error);
     },
   });
 
@@ -82,7 +93,8 @@ export default function LoginModal() {
   const isEmailSubmitting = emailState.status === "submitting-code";
   const isSmsSending = smsState.status === "sending-code";
   const isSmsSubmitting = smsState.status === "submitting-code";
-  const isLoading = isOAuthLoading || isEmailSending || isEmailSubmitting || isSmsSending || isSmsSubmitting;
+  const isPasskeyLoading = passkeyState.status === "awaiting-passkey";
+  const isLoading = isOAuthLoading || isEmailSending || isEmailSubmitting || isSmsSending || isSmsSubmitting || isPasskeyLoading;
 
   const handleGoogleLogin = async () => {
     try {
@@ -94,13 +106,11 @@ export default function LoginModal() {
     }
   };
 
-  const handleAppleLogin = async () => {
+  const handlePasskeyLogin = async () => {
     try {
-      setActiveOAuthProvider("apple");
-      await initOAuth({ provider: "apple" });
+      await loginWithPasskey();
     } catch (err) {
-      console.error("Apple OAuth error:", err);
-      setActiveOAuthProvider(null);
+      console.error("Passkey login error:", err);
     }
   };
 
@@ -456,18 +466,6 @@ export default function LoginModal() {
               <Image src="/mobile.svg" alt="SMS" width={20} height={20} />
               <span className="text-[#939BAA] text-[15px] font-medium">Continue with SMS</span>
             </button>
-
-            {/* Apple Button */}
-            <button
-              type="button"
-              onClick={handleAppleLogin}
-              disabled={isLoading}
-              className="w-full h-14 px-5 bg-[#1D1D1D] rounded-[14px] border border-[#2A2A2A] flex items-center gap-3 hover:border-[#3A3A3A] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              <Image src="/Applce-Icon.svg" alt="Apple" width={24} height={24} />
-              <span className="text-white text-[15px] font-medium">Apple</span>
-              {isOAuthLoading && activeOAuthProvider === "apple" && <Loader2 className="w-4 h-4 text-white animate-spin ml-auto" />}
-            </button>
           </div>
 
           {/* Footer */}
@@ -475,9 +473,18 @@ export default function LoginModal() {
             {/* Passkey Link */}
             <button
               type="button"
-              className="text-white text-sm font-medium hover:text-[#E04548] transition-colors"
+              onClick={handlePasskeyLogin}
+              disabled={isLoading}
+              className="text-white text-sm font-medium hover:text-[#E04548] transition-colors disabled:opacity-60 flex items-center gap-2"
             >
-              I have a passkey
+              {isPasskeyLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Authenticating...
+                </>
+              ) : (
+                "I have a passkey"
+              )}
             </button>
 
             {/* Terms & Privacy */}
