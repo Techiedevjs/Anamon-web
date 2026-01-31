@@ -14,6 +14,7 @@ export default function LoginModal() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
+  const [activeOAuthProvider, setActiveOAuthProvider] = useState<"google" | "apple" | null>(null);
 
   // OAuth hook
   const { initOAuth, state: oauthState } = useLoginWithOAuth({
@@ -53,6 +54,7 @@ export default function LoginModal() {
     setEmail("");
     setPhone("");
     setCode("");
+    setActiveOAuthProvider(null);
   }, []);
 
   // Close modal on escape key
@@ -84,17 +86,21 @@ export default function LoginModal() {
 
   const handleGoogleLogin = async () => {
     try {
+      setActiveOAuthProvider("google");
       await initOAuth({ provider: "google" });
     } catch (err) {
       console.error("Google OAuth error:", err);
+      setActiveOAuthProvider(null);
     }
   };
 
   const handleAppleLogin = async () => {
     try {
+      setActiveOAuthProvider("apple");
       await initOAuth({ provider: "apple" });
     } catch (err) {
       console.error("Apple OAuth error:", err);
+      setActiveOAuthProvider(null);
     }
   };
 
@@ -411,7 +417,7 @@ export default function LoginModal() {
             >
               <Image src="/google-Icon.svg" alt="Google" width={18} height={18} />
               <span className="text-white text-[15px] font-medium">Google</span>
-              {isOAuthLoading && <Loader2 className="w-4 h-4 text-white animate-spin ml-auto" />}
+              {isOAuthLoading && activeOAuthProvider === "google" && <Loader2 className="w-4 h-4 text-white animate-spin ml-auto" />}
             </button>
 
             {/* Email Input Row */}
@@ -460,6 +466,7 @@ export default function LoginModal() {
             >
               <Image src="/Applce-Icon.svg" alt="Apple" width={24} height={24} />
               <span className="text-white text-[15px] font-medium">Apple</span>
+              {isOAuthLoading && activeOAuthProvider === "apple" && <Loader2 className="w-4 h-4 text-white animate-spin ml-auto" />}
             </button>
           </div>
 
