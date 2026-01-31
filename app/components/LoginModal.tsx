@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { useLoginWithEmail, useLoginWithSms } from "@privy-io/react-auth";
+import { useLoginWithOAuth, useLoginWithEmail, useLoginWithSms } from "@privy-io/react-auth";
 import Image from "next/image";
 import { X, Loader2 } from "lucide-react";
 import { useAuthModal } from "@/contexts/AuthModalContext";
@@ -14,6 +14,17 @@ export default function LoginModal() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
+
+  // OAuth hook
+  const { initOAuth, state: oauthState } = useLoginWithOAuth({
+    onComplete: () => {
+      closeAuthModal();
+      resetForm();
+    },
+    onError: (error) => {
+      console.error("OAuth error:", error);
+    },
+  });
 
   // Email hook
   const { sendCode: sendEmailCode, loginWithCode: loginWithEmailCode, state: emailState } = useLoginWithEmail({
@@ -64,11 +75,28 @@ export default function LoginModal() {
 
   if (!isOpen) return null;
 
+  const isOAuthLoading = oauthState.status === "loading";
   const isEmailSending = emailState.status === "sending-code";
   const isEmailSubmitting = emailState.status === "submitting-code";
   const isSmsSending = smsState.status === "sending-code";
   const isSmsSubmitting = smsState.status === "submitting-code";
-  const isLoading = isEmailSending || isEmailSubmitting || isSmsSending || isSmsSubmitting;
+  const isLoading = isOAuthLoading || isEmailSending || isEmailSubmitting || isSmsSending || isSmsSubmitting;
+
+  const handleGoogleLogin = async () => {
+    try {
+      await initOAuth({ provider: "google" });
+    } catch (err) {
+      console.error("Google OAuth error:", err);
+    }
+  };
+
+  const handleAppleLogin = async () => {
+    try {
+      await initOAuth({ provider: "apple" });
+    } catch (err) {
+      console.error("Apple OAuth error:", err);
+    }
+  };
 
   const handleEmailSubmit = async () => {
     if (!email.trim()) return;
@@ -374,6 +402,18 @@ export default function LoginModal() {
 
           {/* Auth Buttons */}
           <div className="w-full flex flex-col gap-3">
+            {/* Google Button */}
+            <button
+              type="button"
+              onClick={handleGoogleLogin}
+              disabled={isLoading}
+              className="w-full h-14 px-5 bg-[#1D1D1D] rounded-[14px] border border-[#2A2A2A] flex items-center gap-3 hover:border-[#3A3A3A] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              <Image src="/google-Icon.svg" alt="Google" width={18} height={18} />
+              <span className="text-white text-[15px] font-medium">Google</span>
+              {isOAuthLoading && <Loader2 className="w-4 h-4 text-white animate-spin ml-auto" />}
+            </button>
+
             {/* Email Input Row */}
             <div className="w-full h-14 px-5 bg-[#1D1D1D] rounded-[14px] border border-[#2A2A2A] flex items-center gap-3">
               <Image src="/mail.svg" alt="Email" width={20} height={20} />
@@ -409,6 +449,17 @@ export default function LoginModal() {
             >
               <Image src="/mobile.svg" alt="SMS" width={20} height={20} />
               <span className="text-[#939BAA] text-[15px] font-medium">Continue with SMS</span>
+            </button>
+
+            {/* Apple Button */}
+            <button
+              type="button"
+              onClick={handleAppleLogin}
+              disabled={isLoading}
+              className="w-full h-14 px-5 bg-[#1D1D1D] rounded-[14px] border border-[#2A2A2A] flex items-center gap-3 hover:border-[#3A3A3A] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              <Image src="/Applce-Icon.svg" alt="Apple" width={24} height={24} />
+              <span className="text-white text-[15px] font-medium">Apple</span>
             </button>
           </div>
 
